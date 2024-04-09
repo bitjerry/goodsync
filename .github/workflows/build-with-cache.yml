@@ -1,0 +1,239 @@
+name: Build Python Package
+
+on:
+  workflow_dispatch:
+  # Trigger the workflow on pushes to only the 'main' branch (this avoids duplicate checks being run e.g., for dependabot pull requests)
+#  push:
+#    branches: [ main ]
+#  Trigger the workflow on any pull request
+#  pull_request:
+
+jobs:
+
+  pre-deploy:
+    name: Prepare Deploy
+    runs-on: ubuntu-latest
+    outputs:
+      openssl-exist: steps.cache-openssl.outputs.cache-hit
+    steps:
+      - name: Check Openssl Cache
+        id: cache-openssl
+        uses: actions/cache@v4
+        with:
+          path: ./openssl
+          key: openssl-cache
+          lookup-only: true
+
+  build-openssl:
+    needs: pre-deploy
+    if: ${{ !needs.pre-deploy.outputs.openssl-exist }}
+    name: Build Openssl on ${{ matrix.os }} ${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      #      max-parallel: 1
+      matrix:
+        os: [ windows-latest, macos-13, macos-14 ]
+        include:
+          - os: ubuntu-latest
+            arch: x86_64
+          - os: ubuntu-latest
+            arch: x86
+    steps:
+      #      - name: Cache Openssl
+      #        uses: actions/cache@v4
+      #        id: cache
+      #        with:
+      #          path: /openssl
+      #          key: openssl-${{ matrix.os }}${{ matrix.arch }}
+      #      - name: Check artifact exists
+      #        uses: xSAVIKx/artifact-exists-action@v0
+      #        id: check_coverage_artifact
+      #        with:
+      #          name: openssl-dist
+
+      - name: Install Openssl On Windows
+        #        if: ${{ matrix.os == 'windows-latest' && steps.check_coverage_artifact.outputs.exists == 'false' }}
+        #        if: ${{ matrix.os == 'windows-latest' && hashFiles('./openssl') == '' }}
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          mkdir ./openssl
+          choco upgrade --no-progress -y chocolatey -version 1.4.0 --allow-downgrade && 
+          choco install --no-progress -y openssl && 
+          cp -r "C:\\Program Files\\OpenSSL\\include" ./openssl/win/x86_64/include &&
+          cp -r "C:\\Program Files\\OpenSSL\\lib\\VC\\static" ./openssl/win/x86_64/lib &&
+          choco install --no-progress --allow-multiple -y --forceX86 --version 1.1.1.2100 openssl &&
+          cp -r "C:\\Program Files (x86)\\OpenSSL-Win32\\include" ./openssl/win/i686/include &&
+          cp -r "C:\\Program Files (x86)\\OpenSSL-Win32\\lib\\VC\\static" ./openssl/win/i686/lib
+
+      - name: Prepare Linux host
+        #        if: ${{ matrix.os == 'ubuntu-latest' && steps.check_coverage_artifact.outputs.exists == 'false' }}
+        #        if: ${{ matrix.os == 'ubuntu-latest' && hashFiles(format('./openssl/{0}', matrix.arch)) == '' }}
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: sudo mkdir -p ${{ github.workspace }}/openssl
+      - name: Setup latest Alpine Linux for ${{ matrix.arch }}
+        #        if: ${{ matrix.os == 'ubuntu-latest' && steps.check_coverage_artifact.outputs.exists == 'false' }}
+        #        if: ${{ matrix.os == 'ubuntu-latest' && hashFiles(format('./openssl/{0}', matrix.arch)) == '' }}
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        uses: jirutka/setup-alpine@v1
+        with:
+          arch: ${{ matrix.arch }}
+          volumes: ${{ github.workspace }}/openssl:/openssl/
+      - name: Install Openssl On Linux for ${{ matrix.arch }}
+        #        if: ${{ matrix.os == 'ubuntu-latest' && steps.check_coverage_artifact.outputs.exists == 'false' }}
+        #        if: ${{ matrix.os == 'ubuntu-latest' && hashFiles(format('./openssl/{0}', matrix.arch)) == '' }}
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          apk add openssl-dev openssl-libs-static &&
+          mkdir -p /openssl/linux/${{ matrix.arch }}/include /openssl/linux/${{ matrix.arch }}/lib &&
+          cp -R /usr/lib/libcrypto.a /openssl/linux/${{ matrix.arch }}/lib &&
+          cp -R /usr/include/openssl /openssl/linux/${{ matrix.arch }}/include
+        shell: alpine.sh --root {0}
+
+      - name: Install Openssl On MacOS
+        #        if: ${{ contains(matrix.os, 'macos') && steps.check_coverage_artifact.outputs.exists == 'false' }}
+        #        if: ${{ contains(matrix.os, 'macos') && hashFiles(format('./openssl/{0}', matrix.os)) == '' }}
+        if: ${{ contains(matrix.os, 'macos') }}
+        run: |
+          brew install openssl &&
+          sudo mkdir -p ./openssl/${{ matrix.os }}/include/openssl/  ./openssl/${{ matrix.os }}/lib/&&
+          sudo cp -RP $(brew --prefix openssl@3)/ ./openssl/${{ matrix.os }}/ &&
+          #          sudo mkdir -p ./openssl/${{ matrix.os }}/include/openssl/  ./openssl/${{ matrix.os }}/lib/&&
+          #          sudo cp -RP $(brew --prefix openssl@3)/include/openssl/ ./openssl/${{ matrix.os }}/include/openssl/ &&
+          #          sudo cp -RP $(brew --prefix openssl@3)/lib/libcrypto.a ./openssl/${{ matrix.os }}/lib/
+
+
+      - uses: actions/upload-artifact@v3
+        #        if: ${{ steps.check_coverage_artifact.outputs.exists == 'false' }}
+        with:
+          name: openssl-dist
+          path: ./openssl
+
+
+  cache-openssl:
+    name: Cache Openssl
+    needs: [ pre-deploy, build-openssl ]
+    if: ${{ !needs.pre-deploy.outputs.openssl-exist }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cache Openssl
+        uses: actions/cache@v4
+        id: cache
+        with:
+          path: ./openssl
+          key: openssl-cache
+      - name: Download openssl
+        uses: actions/download-artifact@v3
+        with:
+          name: openssl-dist
+          path: ./openssl
+
+
+  #  build-tarball:
+  #    permissions:
+  #      contents: read # to fetch code (actions/checkout)
+  #
+  #    name: Tarball
+  #    runs-on: ubuntu-latest
+  ##    needs: pre-deploy
+  #    defaults:
+  #      run:
+  #        working-directory: ./python
+  #    steps:
+  #      - name: Checkout
+  #        uses: actions/checkout@v4
+  #        with:
+  #          submodules: true
+  #      - name: Setup Python
+  #        uses: actions/setup-python@v5
+  #      - name: Update pip, wheel, setuptools, build, twine
+  #        run: |
+  #          sudo apt-get update && sudo apt-get install libssl-dev
+  #          echo "OPENSSL_INCLUDE_DIR=/usr/include/openssl" >> $GITHUB_ENV
+  #          echo "OPENSSL_LIBRARY_DIR=$(dpkg -L libssl-dev | grep -m 1 libcrypto | xargs dirname)" >> $GITHUB_ENV
+  #          python -m pip install -U pip wheel setuptools build twine
+  #      - name: Make sdist
+  #        run: |
+  #          python -m build --sdist
+  #      - name: Upload artifacts
+  #        uses: actions/upload-artifact@v3
+  #        with:
+  #          name: dist
+  #          path: ./python/dist
+
+  build-wheels:
+    needs: [ pre-deploy, cache-openssl ]
+    if: ${{ !(failure() || cancelled()) }}
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ windows-latest, macos-13, macos-14, ubuntu-latest ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+      - name: Restore cached openssl
+        uses: actions/cache/restore@v4
+        with:
+          path: ./openssl
+          key: openssl-cache
+          enableCrossOsArchive: true
+      - name: Update pip, wheel, setuptools, build, twine, cibuildwheel
+        run: |
+          python -m pip install -U pip wheel setuptools build twine cibuildwheel
+
+      # Fucking cibuildwheel doesn't contain a real cross-compilation toolchain, at least Linux requires qemu
+
+      - name: Build wheels
+        run: |
+          cp -r ./openssl ./python &&
+          cd ./python &&
+          python -m cibuildwheel --output-dir wheelhouse
+        env:
+          CIBW_BUILD_VERBOSITY: 3
+          CIBW_ENVIRONMENT: SYSTEM_VERSION_COMPAT=0 _CROSS_COMPILE_FILE=./CrossCompile.json
+          CIBW_TEST_COMMAND: python {project}/tests/test.py
+      - uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: ./python/wheelhouse/*.whl
+
+#  deploy:
+#    name: Deploy
+#    needs: [ build-tarball, build-wheels ]
+#    runs-on: ubuntu-latest
+#    permissions:
+#      contents: write  # IMPORTANT: mandatory for making GitHub Releases
+#      id-token: write  # IMPORTANT: mandatory for trusted publishing & sigstore
+#
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v4
+#        with:
+#          submodules: true
+#      - name: Login
+#        run: |
+#          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+#      - name: Download distributions
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: dist
+#          path: ./python/dist
+#      - name: Collected dists
+#        run: |
+#          tree dist
+#
+##      - name: Upload artifact signatures to GitHub Release
+#        # Confusingly, this action also supports updating releases, not
+#        # just creating them. This is what we want here, since we've manually
+#        # created the release above.
+#        uses: softprops/action-gh-release@v2
+#        with:
+#          # dist/ contains the built packages, which smoketest-artifacts/
+#          # contains the signatures and certificates.
+#          files: ./dist/**
