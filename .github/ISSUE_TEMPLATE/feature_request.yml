@@ -41,30 +41,10 @@ body:
     validations:
       required: true
 
-  - type: dropdown
-    attributes:
-      label: Related component
-      description: >-
-        nothing
-      multiple: false
-      options:
-        - nothing
-    validations:
-      required: true
-
   - type: textarea
     attributes:
       label: Additional context
       description: >-
         Add any other context or screenshots about
         the feature request here.
-
-  - type: checkboxes
-    attributes:
-      label: Code of Conduct
-      description: |
-        nothing
-      options:
-        - label: I agree to follow the Code of Conduct
-          required: false
 ...

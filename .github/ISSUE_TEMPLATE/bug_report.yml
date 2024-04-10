@@ -2,7 +2,7 @@
 name: Bug Report
 description: Create a report to help us improve.
 labels: [ bug ]
-assignees: @bitjerry
+assignees: bitjerry/triagers
 body:
   - type: markdown
     attributes:
@@ -99,12 +99,4 @@ body:
     validations:
       required: true
 
-  - type: checkboxes
-    attributes:
-      label: Code of Conduct
-      description: |
-        nothing
-      options:
-        - label: I agree to follow the Code of Conduct
-          required: false
 ...

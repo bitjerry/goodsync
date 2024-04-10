@@ -75,7 +75,7 @@ print(filename)
 
 理论上使用该算法加密的字符串总能被 goodsync 识别  
 但随着 goodsync 版本更新, 该算法不总能解密 goodsync 加密字符串  
-如果我有时间, 我会持续跟进 goodsync 版本更新, 截至 goodsync 版本 21.5.5.4
+如果我有时间, 我会持续跟进 goodsync 版本更新, 截至 goodsync 版本 12.5.5.4
 
 代码完全开源, 即使 goodsync 窃密我们也不会窃取你的密码和数据
 
