@@ -14,12 +14,11 @@ Read in other languages: English | [简体中文](README.ZH-CN.MD)
 
 ### Prepare
 
-> You can find compiled python wheels in [releases](https://github.com/bitjerry/goodsync/releases).
-> If they don't run on your system, try build them
+Install openssl development package
 
 ### c
 
-Configure the environment variable `OPENSSL_ROOT_DIR` as the location of the openssl installation package
+Configure the environment variable `OPENSSL_ROOT_DIR` as the path of the openssl installed
 
 ```shell
 cmake -B ./cmake_build
@@ -28,26 +27,51 @@ cmake --build ./cmake_build --config Release
 
 ### python
 
-Configure environment variables:
+#### Note
 
-- OPENSSL_INCLUDE_DIR: openssl include folder path
-- OPENSSL_LIBRARY_DIR: openssl library folder path
-- OPENSSL_LIBRARIES: Crypto library, eg: libcrypto
-- _CROSS_COMPILE_FILE: Cross-compile the project. Note that usually this is not available. Cross-compiling python
-  extensions is very difficult. You need to specify the openssl dependency path for the corresponding architecture.
-- ENABLE_PKG_CONFIG: Boolean value, whether to use pkg-conifg to search openssl, need install pkg-config maybe
+If you don't know enough about C and Python, I recommend using
+the [released](https://github.com/bitjerry/goodsync/releases) wheel directly.
+
+Usually you don't need to configure environment variables, the build process will automatically look for the location of
+openssl.
+By default, it is dynamically linked, you need to use `auditwheel` or similar tools to fix it, this is common sense
+about python packaging, if you plan to build it you should get this knowledge.
+
+#### Environment Variables
+
+- `OPENSSL_INCLUDE_DIR`: openssl include folder path
+- `OPENSSL_LIBRARY_DIR`: openssl library folder path
+- `OPENSSL_LIBRARIES`: Dependency library name. Typically, this is `libcrypto` on Windows, or `crypto` on Linux or macOS
+- `EXTRA_LINK_ARGS`: This parameter will be appended directly to the linker
+- `ENABLE_PKG_CONFIG`: whether to use pkg-config to search openssl, need install pkg-config maybe
 
 ```shell
 cd goodsync/python  
+
+python -m pip install build
+
 python -m build
 ```
 
-## Run
-
-### python
+## Install
 
 ```shell
+python -m pip install *.whl 
+```
 
+## Usage
+
+```python
+from goodsync import *
+
+gs = GoodSync("0123456789")
+print(gs.key)
+
+encrypted_filename = gs.encrypt_name("test")
+print(encrypted_filename)
+
+filename = gs.decrypt_name(encrypted_filename)
+print(filename)
 ```
 
 ## License

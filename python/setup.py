@@ -15,10 +15,11 @@ from pathlib import Path
 from setuptools import setup, Extension
 
 if sys.version_info < (3, 8):
-    raise RuntimeError("goodsync requires Python 3.8+")
+    raise RuntimeError("GoodSync requires Python 3.8+")
 
 print("===========================================")
 print("===========GoodSync Tools Builder==========")
+print("===============Author: Mr.lin===============")
 print("===========================================")
 print("Platform: ", platform.platform())
 print("System: ", platform.system())
@@ -35,10 +36,11 @@ OPENSSL_LIBRARIES_ENV: str = os.getenv("OPENSSL_LIBRARIES")
 EXTRA_LINK_ARGS_ENV: str = os.getenv("EXTRA_LINK_ARGS")
 ENABLE_PKG_CONFIG_ENV: bool = os.getenv("ENABLE_PKG_CONFIG", False)
 
-print("========All Environment========")
-for _k, _v in os.environ.items():
-    print(f" ==> {_k}: {_v}")
-print("===============================")
+# debug only
+# print("========All Environment========")
+# for _k, _v in os.environ.items():
+#     print(f" ==> {_k}: {_v}")
+# print("===============================")
 
 BUILD_DIR = Path(__file__).parent.absolute()
 
@@ -72,7 +74,6 @@ def gen_extension_kw(
     :param openssl_include_dir:
     :param openssl_library_dir:
     :param openssl_libraries:
-    :param extra_link_args:
     :return:
     """
     if ENABLE_PKG_CONFIG_ENV:

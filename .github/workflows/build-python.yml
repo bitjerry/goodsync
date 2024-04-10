@@ -140,6 +140,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
+      # Remove old release drafts by using the curl request for the available releases with a draft flag
+      - name: Remove Old Release Drafts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api repos/{owner}/{repo}/releases \
+            --jq '.[] | select(.draft == true) | .id' \
+            | xargs -I '{}' gh api -X DELETE repos/{owner}/{repo}/releases/{}
       - name: Login
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
@@ -147,18 +155,24 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: dist
-          path: ./python/dist
+          path: dist
       - name: Collected dists
         run: |
           tree dist
 
-##      - name: Upload artifact signatures to GitHub Release
-#        # Confusingly, this action also supports updating releases, not
-#        # just creating them. This is what we want here, since we've manually
-#        # created the release above.
-#        uses: softprops/action-gh-release@v2
-#        with:
-#          # dist/ contains the built packages, which smoketest-artifacts/
-#          # contains the signatures and certificates.
-#          files: ./dist/**
+      - name: Sign the dists with Sigstore
+        uses: sigstore/gh-action-sigstore-python@v2.1.1
+        with:
+          inputs: >-
+            ./dist/*.tar.gz
+            ./dist/*.whl
 
+      - name: Create Release Draft
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          body: |
+            ## What's Changed
+          # dist/ contains the built packages, which smoketest-artifacts/
+          # contains the signatures and certificates.
+          files: dist/**

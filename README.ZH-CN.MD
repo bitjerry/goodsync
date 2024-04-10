@@ -12,18 +12,61 @@
 
 ### 前置工作
 
-配置好`OPENSSL_ROOT_DIR`环境变量
+安装 openssl 开发包
 
 ### c
 
-`src` 文件下包含一个使用示例 `example.c`  
-使用 cmake 编译或任何其它工具
+配置环境变量 `OPENSSL_ROOT_DIR` 为 openssl 安装位置
+
+```shell
+cmake -B ./cmake_build
+cmake --build ./cmake_build --config Release
+```
 
 ### python
 
+#### 注意
+
+如果你不熟悉 c 和 python, 建议使用发行的轮子 [released](https://github.com/bitjerry/goodsync/releases)
+
+通常不需要配置环境变量，构建过程会自动寻找 openssl 的位置。
+默认情况下，是动态链接，你需要使用 `auditwheel` 或类似的工具来修复它，这是关于 python 打包的常识，如果你打算构建它，你应该了解这些知识。
+
+#### 环境变量
+
+- `OPENSSL_INCLUDE_DIR`: openssl include 文件夹
+- `OPENSSL_LIBRARY_DIR`: openssl lib 文件夹
+- `OPENSSL_LIBRARIES`: 依赖库名. 通常, 在 Windows 上为 `libcrypto`, 在 Linux 或 macos 上为 `crypto`
+- `EXTRA_LINK_ARGS`: 在链接过程中, 被直接追加到链接器后
+- `ENABLE_PKG_CONFIG`: 是否启用 `pkg-config` 寻找 openssl 依赖包. 一般情况下用不到, 有时你需要安装 `pkg-config`
+
 ```shell
 cd goodsync/python  
+
+python -m pip install build
+
 python -m build
+```
+
+## 安装
+
+```shell
+python -m pip install *.whl 
+```
+
+## 用法
+
+```python
+from goodsync import *
+
+gs = GoodSync("0123456789")
+print(gs.key)
+
+encrypted_filename = gs.encrypt_name("test")
+print(encrypted_filename)
+
+filename = gs.decrypt_name(encrypted_filename)
+print(filename)
 ```
 
 ## 后记
