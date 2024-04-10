@@ -58,7 +58,8 @@ body:
   - type: textarea
     attributes:
       label: Platform Version
-      description: "( eg: Python, CMake, VisualStudio )."
+      placeholder: >-
+        For example, Python, CMake, VisualStudio, etc.
     validations:
       required: true
   - type: textarea
