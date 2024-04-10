@@ -56,7 +56,7 @@ python -m build
 ## Install
 
 ```shell
-python -m pip install *.whl 
+python -m pip install goodsync
 ```
 
 ## Usage
