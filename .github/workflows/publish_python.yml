@@ -25,7 +25,6 @@ jobs:
           submodules: true
       - uses: robinraju/release-downloader@v1.9
         with:
-          repository: "https://github.com/bitjerry/goodsync/"
           latest: true
           fileName: "*.whl"
           out-file-path: "./dist"
