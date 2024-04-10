@@ -1,0 +1,9 @@
+# Ref: https://help.github.com/en/github/building-a-strong-community/configuring-issue-templates-for-your-repository#configuring-the-template-chooser
+blank_issues_enabled: false  # default: true
+contact_links:
+  - name: 🤷💻🤦 StackOverflow
+    url: https://stackoverflow.com/questions
+    about: Please ask typical Q&A here
+  - name: 💬 Gitter Chat
+    url: https://t.me/Mrliux
+    about: Chat with devs and community

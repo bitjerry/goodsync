@@ -131,9 +131,6 @@ jobs:
     name: Deploy
     needs: [ build-tarball, build-wheels ]
     runs-on: ubuntu-latest
-    permissions:
-      contents: write  # IMPORTANT: mandatory for making GitHub Releases
-      id-token: write  # IMPORTANT: mandatory for trusted publishing & sigstore
 
     steps:
       - name: Checkout
