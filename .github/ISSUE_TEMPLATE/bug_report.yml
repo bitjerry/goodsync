@@ -52,17 +52,13 @@ body:
         If applicable, add logs/tracebacks to help explain your problem.
         Paste the output of the steps above, including the commands
         themselves and their output/traceback etc.
-      render: python-traceback
     validations:
       required: true
 
   - type: textarea
     attributes:
-      label: Python Version
-      description: Attach your version of Python.
-      render: console
-      value: |
-        $ python --version
+      label: Platform Version
+      description: "( eg: Python, CMake, VisualStudio )."
     validations:
       required: true
   - type: textarea
@@ -76,9 +72,6 @@ body:
       label: goodsync Version
       description: |
         Attach your goodsync version of the project
-      render: console
-      value: |
-        $ python -m pip show goodsync (For CPython)
     validations:
       required: true
   - type: textarea

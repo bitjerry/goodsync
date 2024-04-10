@@ -7,7 +7,7 @@
 @File: __init__
 """
 
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 
 if __package__ or "." in __name__:
     from goodsync import _GoodSync
