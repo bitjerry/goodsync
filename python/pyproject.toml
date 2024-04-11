@@ -1,0 +1,11 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta:__legacy__"
+
+[tool.cibuildwheel.linux]
+before-all = "yum install -y openssl-devel"
+
+[[tool.cibuildwheel.overrides]]
+select = "*musllinux*"
+before-all = "apk add openssl-dev"
+

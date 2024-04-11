@@ -1,0 +1,33 @@
+name: Publish Python Wheel
+on:
+  release:
+    types: [ released ]
+  #    types: [prereleased, published]
+  workflow_dispatch:
+
+
+jobs:
+
+  release:
+    name: Publish Wheel
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # IMPORTANT: mandatory for making GitHub Releases
+      id-token: write  # IMPORTANT: mandatory for trusted publishing & sigstore
+
+    environment:
+      name: pypi
+      url: https://pypi.org/p/goodsync
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: robinraju/release-downloader@v1.9
+        with:
+          latest: true
+          fileName: "*.whl"
+          out-file-path: "./dist"
+      - name: >-
+          Publish 🐍📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
