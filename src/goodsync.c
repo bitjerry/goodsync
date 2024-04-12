@@ -23,6 +23,16 @@ int aes_encrypt_master_key(unsigned char *master_key, int master_key_len, unsign
         key_out[offset++] = salt[i];
     }
 
+    if (!EVP_BytesToKey(cipher, md, salt, key, 10, count, _key, iv)) {
+        return MASTER_KEY_BYTES_TO_KEY_ERROR;
+    }
+
+    EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
+    if (!EVP_EncryptInit_ex(ctx, cipher, NULL, _key, iv)) {
+        EVP_CIPHER_CTX_free(ctx);
+        return MASTER_KEY_ENCRYPT_INIT_ERROR;
+    }
+
     EVP_MD_CTX *ctx_md = EVP_MD_CTX_create(); // Compatible with openssl 1.0
     if (!EVP_DigestInit(ctx_md, md)) {
         return MASTER_KEY_DIGEST_INIT_ERROR;
@@ -39,18 +49,6 @@ int aes_encrypt_master_key(unsigned char *master_key, int master_key_len, unsign
         return MASTER_KEY_DIGEST_FINAL_ERROR;
     }
     EVP_MD_CTX_destroy(ctx_md);
-
-    if (!EVP_BytesToKey(cipher, md, salt, key, 10, count, _key, iv)) {
-        free(digest);
-        return MASTER_KEY_BYTES_TO_KEY_ERROR;
-    }
-
-    EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
-    if (!EVP_EncryptInit_ex(ctx, cipher, NULL, _key, iv)) {
-        free(digest);
-        EVP_CIPHER_CTX_free(ctx);
-        return MASTER_KEY_ENCRYPT_INIT_ERROR;
-    }
 
     if (!EVP_EncryptUpdate(ctx, key_out + offset, &key_out_len, digest, 8)) {
         free(digest);
