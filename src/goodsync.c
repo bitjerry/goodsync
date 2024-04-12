@@ -31,26 +31,33 @@ int aes_encrypt_master_key(unsigned char *master_key, int master_key_len, unsign
         return MASTER_KEY_DIGEST_UPDATE_ERROR;
     }
 
-    unsigned char digest[20] = {0};
+    unsigned char *digest = (unsigned char *) malloc(EVP_MD_size(md));;
 
-    if (!EVP_DigestFinal(ctx_md, digest, NULL)) {
+    if (!EVP_DigestFinal_ex(ctx_md, digest, NULL)) {
+        free(digest);
         return MASTER_KEY_DIGEST_FINAL_ERROR;
     }
     EVP_MD_CTX_destroy(ctx_md);
 
     if (!EVP_BytesToKey(cipher, md, salt, key, 10, count, _key, iv)) {
+        free(digest);
         return MASTER_KEY_BYTES_TO_KEY_ERROR;
     }
 
     EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
     if (!EVP_EncryptInit_ex(ctx, cipher, NULL, _key, iv)) {
+        free(digest);
+        EVP_CIPHER_CTX_free(ctx);
         return MASTER_KEY_ENCRYPT_INIT_ERROR;
     }
 
     if (!EVP_EncryptUpdate(ctx, key_out + offset, &key_out_len, digest, 8)) {
+        free(digest);
         EVP_CIPHER_CTX_free(ctx);
         return MASTER_KEY_ENCRYPT_DIGEST_UPDATE_ERROR;
     }
+
+    free(digest);
 
     const unsigned char kl[4] = {master_key_len};
 
