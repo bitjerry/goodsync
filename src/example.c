@@ -3,6 +3,7 @@
 //
 
 #include <stdio.h>
+#include <string.h>
 #include "goodsync.h"
 
 int main() {
@@ -26,6 +27,7 @@ int main() {
     unsigned char encrypt_data[1024] = {0};
     int encrypt_data_len;
     int data_len = sizeof(data) - 1;
+
     result = aes_encrypt_name(key, key_len, data, data_len, encrypt_data, &encrypt_data_len);
     if (result) {
         printf("%s\n", message(result));
@@ -51,7 +53,7 @@ int main() {
         printf("%s\n", message(result));
     }
 
-    printf("Decrypt data len: %llu\n", sizeof(decrypt_data) - 1);
+    printf("Decrypt data len: %llu\n", strlen(decrypt_data));
     printf("Decrypt data: ");
     for (int i = 0; i < decrypt_data_len; ++i) {
         printf("%02x ", decrypt_data[i]);

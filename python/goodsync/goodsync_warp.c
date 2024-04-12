@@ -16,7 +16,7 @@ static PyObject *encrypt_master_key(PyObject *self, PyObject *args, PyObject *ke
     }
     unsigned char out[1024] = {0};
     int out_len;
-    int result = aes_encrypt_master_key(master_key, sizeof(master_key) - 1, out, &out_len);
+    int result = aes_encrypt_master_key(master_key, strlen(master_key), out, &out_len);
     if (result) {
         PyErr_SetString(GSError, message(result));
         return NULL;
@@ -34,7 +34,7 @@ static PyObject *encrypt_name(PyObject *self, PyObject *args, PyObject *keywds) 
     }
     unsigned char out[1024] = {0};
     int out_len;
-    int result = aes_encrypt_name(key, sizeof(key) - 1, data, sizeof(data) - 1, out, &out_len);
+    int result = aes_encrypt_name(key, strlen(key), data, strlen(data), out, &out_len);
     if (result) {
         PyErr_SetString(GSError, message(result));
         return NULL;
@@ -51,7 +51,7 @@ static PyObject *decrypt_name(PyObject *self, PyObject *args, PyObject *keywds) 
     }
     unsigned char out[1024] = {0};
     int out_len;
-    int result = aes_decrypt_name(key, sizeof(key) - 1, data, sizeof(data) - 1, out, &out_len);
+    int result = aes_decrypt_name(key, strlen(key), data, strlen(data), out, &out_len);
     if (result) {
         PyErr_SetString(GSError, message(result));
         return NULL;

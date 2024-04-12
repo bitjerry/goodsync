@@ -9,6 +9,7 @@ int aes_encrypt_master_key(unsigned char *master_key, int master_key_len, unsign
     const static unsigned char key[] = "CD7qLuyoS9";
     const EVP_CIPHER *cipher = EVP_aes_256_cbc();
     const EVP_MD *md = EVP_sha1();
+    const int md_size = EVP_MD_size(md);
     int end_len;
     int count = 10;
     unsigned int crc_value;
@@ -31,7 +32,7 @@ int aes_encrypt_master_key(unsigned char *master_key, int master_key_len, unsign
         return MASTER_KEY_DIGEST_UPDATE_ERROR;
     }
 
-    unsigned char *digest = (unsigned char *) malloc(EVP_MD_size(md));;
+    unsigned char *digest = (unsigned char *) malloc(md_size);
 
     if (!EVP_DigestFinal_ex(ctx_md, digest, NULL)) {
         free(digest);
