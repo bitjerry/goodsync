@@ -3,7 +3,6 @@
 //
 
 #include <Python.h>
-#include <stdio.h>
 #include "goodsync.h"
 
 static PyObject *GSError;
