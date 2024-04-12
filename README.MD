@@ -19,7 +19,14 @@ Install openssl development package
 
 ### c
 
-Configure the environment variable `OPENSSL_ROOT_DIR` as the path of the openssl installed
+Configure the environment variable
+
+- `OPENSSL_INCLUDE_DIR`: Openssl include folder path. For example, on Windows it
+  is `C:\Program Files\OpenSSL-Win64\include`
+- `OPENSSL_LIBRARY_DIR`: Openssl library folder path. For example, on Windows it is `C:\Program Files\OpenSSL-Win64\lib`
+- `OPENSSL_LIBRARIES`: Dependency library name. Usually, just `crypto` is OK
+
+Configure your cmake tool
 
 ```shell
 cmake -B ./cmake_build
@@ -41,9 +48,10 @@ about python packaging, if you plan to build it you should get this knowledge.
 
 #### Environment Variables ( Optional )
 
-- `OPENSSL_INCLUDE_DIR`: openssl include folder path
-- `OPENSSL_LIBRARY_DIR`: openssl library folder path
-- `OPENSSL_LIBRARIES`: Dependency library name. Typically, this is `libcrypto` on Windows, or `crypto` on Linux or macOS
+- `OPENSSL_INCLUDE_DIR`: Openssl include folder path. For example, on Windows it
+  is `C:\Program Files\OpenSSL-Win64\include`
+- `OPENSSL_LIBRARY_DIR`: Openssl library folder path. For example, on Windows it is `C:\Program Files\OpenSSL-Win64\lib`
+- `OPENSSL_LIBRARIES`: Dependency library name. Usually, just `crypto` is OK
 - `EXTRA_LINK_ARGS`: This parameter will be appended directly to the linker
 - `ENABLE_PKG_CONFIG`: whether to use pkg-config to search openssl, need install pkg-config maybe
 

@@ -16,7 +16,13 @@
 
 ### c
 
-配置环境变量 `OPENSSL_ROOT_DIR` 为 openssl 安装位置
+配置好环境变量
+
+- `OPENSSL_INCLUDE_DIR`: Openssl 头文件路径. 例如, Windows 为 `C:\Program Files\OpenSSL-Win64\include`
+- `OPENSSL_LIBRARY_DIR`: Openssl 依赖库路径. 例如, Windows 为  `C:\Program Files\OpenSSL-Win64\lib`
+- `OPENSSL_LIBRARIES`: 依赖库名称. 通常, 只需要 `crypto`
+
+配置好 cmake 工具
 
 ```shell
 cmake -B ./cmake_build
@@ -34,9 +40,9 @@ cmake --build ./cmake_build --config Release
 
 #### 环境变量
 
-- `OPENSSL_INCLUDE_DIR`: openssl include 文件夹
-- `OPENSSL_LIBRARY_DIR`: openssl lib 文件夹
-- `OPENSSL_LIBRARIES`: 依赖库名. 通常, 在 Windows 上为 `libcrypto`, 在 Linux 或 macos 上为 `crypto`
+- `OPENSSL_INCLUDE_DIR`: Openssl 头文件路径. 例如, Windows 为 `C:\Program Files\OpenSSL-Win64\include`
+- `OPENSSL_LIBRARY_DIR`: Openssl 依赖库路径. 例如, Windows 为  `C:\Program Files\OpenSSL-Win64\lib`
+- `OPENSSL_LIBRARIES`: 依赖库名称. 通常, 只需要 `crypto`
 - `EXTRA_LINK_ARGS`: 在链接过程中, 被直接追加到链接器后
 - `ENABLE_PKG_CONFIG`: 是否启用 `pkg-config` 寻找 openssl 依赖包. 一般情况下用不到, 有时你需要安装 `pkg-config`
 

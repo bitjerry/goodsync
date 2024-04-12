@@ -4,9 +4,8 @@ project(goodsync C)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-#set(OPENSSL_USE_STATIC_LIBS TRUE)
-
-find_package(OpenSSL COMPONENTS Crypto)
+include_directories($ENV{OPENSSL_INCLUDE_DIR})
+link_directories($ENV{OPENSSL_LIBRARY_DIR})
 
 set(Python3_USE_STATIC_LIBS FALSE)
 
@@ -19,7 +18,7 @@ add_library(
         goodsync/crc.c
         goodsync/base.c)
 
-target_link_libraries(goodsync PUBLIC Python3::Module OpenSSL::Crypto)
+target_link_libraries(goodsync PUBLIC Python3::Module $ENV{OPENSSL_LIBRARIES})
 set_target_properties(goodsync PROPERTIES OUTPUT_NAME "_GoodSync" PREFIX "")
 
 # If other tools report errors, just comment it, feel free
